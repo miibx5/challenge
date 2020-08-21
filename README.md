@@ -1,1 +1,1 @@
-# netpos-challenge
+# challenge
