@@ -10,6 +10,7 @@ Codification.................: UTF-8
 */
 package br.com.edersystems.challenge.model.service.user;
 
+import br.com.edersystems.challenge.exceptions.UnProcessableEntityException;
 import br.com.edersystems.challenge.model.dto.user.UserAccountDTO;
 import br.com.edersystems.challenge.model.entities.UserAccount;
 import br.com.edersystems.challenge.model.repositories.criteria.SearchCriteria;
@@ -37,6 +38,10 @@ public class UserAccountService {
     }
 
     public UserAccount create(CreateUserAccountRequest request) {
+        UserAccount retriviedUser = repository.findByEmail(request.getEmail());
+        if(Objects.nonNull(retriviedUser)) {
+            throw new UnProcessableEntityException("email.already_exists");
+        }
         return repository.save(builderUserAccount(request));
     }
 

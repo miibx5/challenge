@@ -22,4 +22,6 @@ import java.util.UUID;
 public interface UserAccountRepository extends PagingAndSortingRepository<UserAccount, String>, JpaSpecificationExecutor<UserAccount> {
 
     UserAccount findById(UUID userId);
+
+    UserAccount findByEmail(String email);
 }

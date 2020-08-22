@@ -17,7 +17,6 @@ import br.com.edersystems.challenge.model.entities.UserAccount;
 import br.com.edersystems.challenge.model.entities.enums.ProductSort;
 import br.com.edersystems.challenge.model.repositories.criteria.SearchCriteria;
 import br.com.edersystems.challenge.model.repositories.user.UserAccountRepository;
-import br.com.edersystems.challenge.model.request.user.CreateUserAccountRequest;
 import br.com.edersystems.challenge.util.SearchOperation;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,10 +53,6 @@ public class ProductRepositoryTest {
 
     @Before
     public void init() {
-        CreateUserAccountRequest userAccountRequest = new CreateUserAccountRequest();
-        userAccountRequest.setEmail("email1@test.com");
-        userAccountRequest.setFullName("Mary Test");
-        userAccountRequest.setPassword("123456");
         mary = accountRepository.save(new UserAccount("email1@test.com", "Mary Test", "123456"));
         john = accountRepository.save(new UserAccount("email2@test.com", "John Test", "123456"));
 
@@ -85,7 +80,6 @@ public class ProductRepositoryTest {
 
     @Test
     public void getProductByFilteringTheNameSuccessfully() throws Exception {
-        final String order = "ASC";
         final String code = "";
         final String name = "Product One";
         ProductSpeficationBuilder builder = getProductSpeficationBuilder(mary.getId(), name, code);

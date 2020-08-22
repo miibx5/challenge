@@ -43,6 +43,14 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService {
 
+    private static final String PRODUCT_NOT_FOUND = "Product not found.";
+
+    private static final String CODE = "code";
+
+    private static final String NAME = "name";
+
+    private static final String OWNER = "owner";
+
     @Autowired
     private final ProductRepository repository;
 
@@ -77,7 +85,7 @@ public class ProductService {
     public void deleteProduct(UUID userId, UUID productId) {
         Product product = getProductByOwnerIdAndProduct(userId, productId);
         if(Objects.isNull(product)) {
-            throw new NotFoundException("Product not found.");
+            throw new NotFoundException(PRODUCT_NOT_FOUND);
         }
 
         product.setActive(Boolean.FALSE);
@@ -88,33 +96,29 @@ public class ProductService {
     public ProductDTO getProductById(UUID productId) {
         Product product = repository.findById(productId);
         if(Objects.isNull(product)) {
-            throw new NotFoundException("Product not found.");
+            throw new NotFoundException(PRODUCT_NOT_FOUND);
         }
         return buildeProductDTO(product);
     }
 
     public void changeProductStock(UUID userId, UUID productId, ProductStockUpdateRequest request) {
 
-        if(Objects.isNull(userId)) {
-            throw new UnProcessableEntityException("The user_id is required.");
-        }
-
         if(Objects.isNull(request)) {
-            throw new UnProcessableEntityException("The operation and quantity are required.");
+            throw new UnProcessableEntityException("{invalid.request}");
         }
 
         if(Objects.isNull(request.getOperation())) {
-            throw new UnProcessableEntityException("The operation is required.");
+            throw new UnProcessableEntityException("required.operation");
         }
 
         if(Objects.isNull(request.getQuantity())) {
-            throw new UnProcessableEntityException("The quantity is required.");
+            throw new UnProcessableEntityException("required.quantity");
         }
 
         Product product = getProductByOwnerIdAndProduct(userId, productId);
 
         if(Objects.isNull(product)) {
-            throw new NotFoundException("Product not found.");
+            throw new NotFoundException("product.notfound");
         }
 
         setStockProduct(request, product);
@@ -127,7 +131,7 @@ public class ProductService {
 
     private Sort getProductSortByOrder(String order) {
         if(Objects.isNull(order)) {
-            return Sort.by("name").ascending();
+            return Sort.by(NAME).ascending();
         }
         String[] fieldAndValue = order.split(";");
         if(fieldAndValue[BigDecimal.ONE.intValue()].equals(ProductSort.ASC.name())) {
@@ -140,13 +144,16 @@ public class ProductService {
         switch(request.getOperation()) {
             case ADD:
                 product.getStock().setQuantity(product.getStock().getQuantity() + request.getQuantity());
+                break;
             case REMOVE:
-                product.getStock().setQuantity(product.getStock().getQuantity() + request.getQuantity());
+                product.getStock().setQuantity(product.getStock().getQuantity() - request.getQuantity());
+                break;
             default:
                 product.getStock().setQuantity(request.getQuantity());
+                break;
         }
         if(product.getStock().getQuantity() > 1000) {
-            throw new IllegalArgumentException("The quantity must be less than or equal to 1000");
+            throw new UnProcessableEntityException("required.max_quantity");
         }
     }
 
@@ -166,12 +173,12 @@ public class ProductService {
     private ProductSpeficationBuilder getProductSpeficationBuilder(UUID ownerId, String code, String name) {
         ProductSpeficationBuilder builder = new ProductSpeficationBuilder();
         UserAccount owner = getOwnerProduct(ownerId);
-        builder.getParams().add(new SearchCriteria("owner", SearchOperation.EQUALITY, owner));
+        builder.getParams().add(new SearchCriteria(OWNER, SearchOperation.EQUALITY, owner));
         if(Objects.nonNull(name) && !name.isBlank()) {
-            builder.getParams().add(new SearchCriteria("name", SearchOperation.CONTAINS, name));
+            builder.getParams().add(new SearchCriteria(NAME, SearchOperation.CONTAINS, name));
         }
         if(Objects.nonNull(code) && !code.isBlank()) {
-            builder.getParams().add(new SearchCriteria("code", SearchOperation.CONTAINS, code));
+            builder.getParams().add(new SearchCriteria(CODE, SearchOperation.CONTAINS, code));
         }
         return builder;
     }

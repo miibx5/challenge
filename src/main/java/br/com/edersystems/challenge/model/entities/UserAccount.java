@@ -31,16 +31,15 @@ public class UserAccount implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @NotBlank(message = "The e-mail is required.")
+    @NotBlank(message = "required.email")
     @Column(length = 70, nullable = false, unique = true)
     private final String email;
 
-    @NotBlank(message = "The full_name is required.")
+    @NotBlank(message = "required.fullName")
     @Column(length = 120, name = "full_name", nullable = false)
     private final String fullName;
 
-
-    @NotBlank(message = "The password is required.")
+    @NotBlank(message = "required.password")
     @Column(length = 36, nullable = false)
     private final String password;
 

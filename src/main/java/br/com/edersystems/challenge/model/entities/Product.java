@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -37,12 +39,15 @@ public class Product implements java.io.Serializable {
     @Column(nullable = false)
     private Boolean active;
 
+    @NotBlank(message = "required.code")
     @Column(length = 100, nullable = false)
     private String code;
 
+    @NotBlank(message = "required.name")
     @Column(length = 100, nullable = false)
     private String name;
 
+    @NotNull(message = "required.price")
     @Column(nullable = false, precision = 11, scale = 2)
     private BigDecimal price;
 

@@ -11,6 +11,8 @@ Codification.................: UTF-8
 package br.com.edersystems.challenge.exceptions;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -24,11 +26,19 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private final MessageSource messageSource;
+
+    @Autowired
+    public CustomExceptionHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
 
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpStatus status) {
         String errorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
@@ -38,7 +48,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {IllegalArgumentException.class})
     public ResponseEntity<Object> handlerException(Exception ex) {
-        final String errorMessage = ex.getLocalizedMessage();
+        final String errorMessage = messageSource.getMessage(NestedExceptionUtils.getMostSpecificCause(ex).getLocalizedMessage(), null, Locale.ENGLISH);
         return new ResponseEntity<>(new GenericError(String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()), errorMessage), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
@@ -74,14 +84,16 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         if(cause instanceof ConstraintViolationException) {
             Set<ConstraintViolation<?>> constraintViolations = ((ConstraintViolationException) cause).getConstraintViolations();
             message = constraintViolations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining());
+            message = messageSource.getMessage(message, null, Locale.ENGLISH);
         }
         return new ResponseEntity<>(new GenericError(String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()), message), new org.springframework.http.HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+
     @ExceptionHandler({NotFoundException.class})
     public ResponseEntity<?> handleNotFound(NotFoundException ex) {
 
-        String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
+        String message = messageSource.getMessage(NestedExceptionUtils.getMostSpecificCause(ex).getMessage(), null, Locale.ENGLISH);
 
         return new ResponseEntity<>(new GenericError(String.valueOf(HttpStatus.NOT_FOUND.value()), message), new org.springframework.http.HttpHeaders(), HttpStatus.NOT_FOUND);
     }
@@ -89,8 +101,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({UnProcessableEntityException.class})
     public ResponseEntity<?> handleUnProcessableEntity(UnProcessableEntityException ex) {
 
-        String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
+        String message = messageSource.getMessage(NestedExceptionUtils.getMostSpecificCause(ex).getMessage(), null, Locale.ENGLISH);
 
-        return new ResponseEntity<>(new GenericError(String.valueOf(HttpStatus.NOT_FOUND.value()), message), new org.springframework.http.HttpHeaders(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new GenericError(String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()), message), new org.springframework.http.HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

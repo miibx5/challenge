@@ -15,6 +15,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Getter
@@ -29,7 +31,9 @@ public class Stock implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Max(value = 1000, message = "The quantity must be less than or equal to 1000")
+    @NotNull(message = "required.quantity")
+    @Min(value = 1, message = "required.min_quantity")
+    @Max(value = 1000, message = "required.max_quantity")
     @Column(nullable = false)
     private Integer quantity;
 
