@@ -24,7 +24,7 @@ import java.util.UUID;
 @Table(name = "products")
 public class Product implements java.io.Serializable {
 
-    private static final long serialVersionUID = -2488105184772382876L;
+    private static final long serialVersionUID = 8065388088241555253L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -60,5 +60,13 @@ public class Product implements java.io.Serializable {
         this.stock = stock;
         this.active = Boolean.TRUE;
         this.owner = owner;
+    }
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

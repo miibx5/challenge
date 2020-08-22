@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 public class ProductStockRequest implements java.io.Serializable {
 
-    private static final long serialVersionUID = -6074148390360679282L;
+    private static final long serialVersionUID = -4050816750292577340L;
 
     private Integer quantity;
 }

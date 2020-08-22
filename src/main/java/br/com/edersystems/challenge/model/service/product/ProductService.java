@@ -11,6 +11,8 @@ Codification.................: UTF-8
 package br.com.edersystems.challenge.model.service.product;
 
 
+import br.com.edersystems.challenge.exceptions.NotFoundException;
+import br.com.edersystems.challenge.exceptions.UnProcessableEntityException;
 import br.com.edersystems.challenge.model.dto.product.ProductDTO;
 import br.com.edersystems.challenge.model.dto.product.StockDTO;
 import br.com.edersystems.challenge.model.entities.Product;
@@ -52,9 +54,6 @@ public class ProductService {
     }
 
     public List<ProductDTO> getProductsByUserId(UUID ownerId, String code, String name, String order) {
-
-        String fieldValue = null;
-        String field = null;
         ProductSpeficationBuilder builder = getProductSpeficationBuilder(ownerId, code, name);
         Pageable pageable = PageRequest.of(0, 100, getProductSortByOrder(order));
         return repository.findAll(builder.build(), pageable)
@@ -67,34 +66,59 @@ public class ProductService {
         return buildeProductDTO(product);
     }
 
-    public Product changeProduct(UUID userId, UUID productId, ProductUpdateRequest request) {
+    public ProductDTO changeProduct(UUID userId, UUID productId, ProductUpdateRequest request) {
         Product product = getProductByOwnerIdAndProduct(userId, productId);
         product.setName(request.getName());
         product.setPrice(request.getPrice());
         repository.save(product);
-        return product;
+        return buildeProductDTO(product);
     }
 
     public void deleteProduct(UUID userId, UUID productId) {
         Product product = getProductByOwnerIdAndProduct(userId, productId);
+        if(Objects.isNull(product)) {
+            throw new NotFoundException("Product not found.");
+        }
+
         product.setActive(Boolean.FALSE);
         repository.save(product);
+        System.out.println(product.isActive());
     }
 
     public ProductDTO getProductById(UUID productId) {
         Product product = repository.findById(productId);
+        if(Objects.isNull(product)) {
+            throw new NotFoundException("Product not found.");
+        }
         return buildeProductDTO(product);
     }
 
     public void changeProductStock(UUID userId, UUID productId, ProductStockUpdateRequest request) {
-        Product product = getProductByOwnerIdAndProduct(userId, productId);
-        final int quantity = product.getStock().getQuantity() + request.getQuantity();
-        if(quantity > 1000) {
-            throw new IllegalArgumentException("The quantity must be less than or equal to 1000");
+
+        if(Objects.isNull(userId)) {
+            throw new UnProcessableEntityException("The user_id is required.");
         }
+
+        if(Objects.isNull(request)) {
+            throw new UnProcessableEntityException("The operation and quantity are required.");
+        }
+
+        if(Objects.isNull(request.getOperation())) {
+            throw new UnProcessableEntityException("The operation is required.");
+        }
+
+        if(Objects.isNull(request.getQuantity())) {
+            throw new UnProcessableEntityException("The quantity is required.");
+        }
+
+        Product product = getProductByOwnerIdAndProduct(userId, productId);
+
+        if(Objects.isNull(product)) {
+            throw new NotFoundException("Product not found.");
+        }
+
         setStockProduct(request, product);
         repository.save(product);
-
     }
 
     private ProductDTO buildeProductDTO(Product product) {
@@ -120,6 +144,9 @@ public class ProductService {
                 product.getStock().setQuantity(product.getStock().getQuantity() + request.getQuantity());
             default:
                 product.getStock().setQuantity(request.getQuantity());
+        }
+        if(product.getStock().getQuantity() > 1000) {
+            throw new IllegalArgumentException("The quantity must be less than or equal to 1000");
         }
     }
 
@@ -152,5 +179,4 @@ public class ProductService {
     private UserAccount getOwnerProduct(UUID ownerId) {
         return userAccountService.getUserById(ownerId);
     }
-
 }

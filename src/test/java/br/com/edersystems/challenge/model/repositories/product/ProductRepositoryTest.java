@@ -147,7 +147,7 @@ public class ProductRepositoryTest {
     public void deleteProductSuccessfully() throws Exception {
         Product product = repository.save(new Product("0001", "Product Zero", BigDecimal.valueOf(10), new Stock(1), mary));
         product.setActive(Boolean.FALSE);
-        assertSame(product.getActive(), Boolean.FALSE);
+        assertSame(product.isActive(), Boolean.FALSE);
     }
 
 
