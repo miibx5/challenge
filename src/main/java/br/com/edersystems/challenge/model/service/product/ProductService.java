@@ -43,8 +43,6 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService {
 
-    private static final String PRODUCT_NOT_FOUND = "Product not found.";
-
     private static final String CODE = "code";
 
     private static final String NAME = "name";
@@ -84,9 +82,7 @@ public class ProductService {
 
     public void deleteProduct(UUID userId, UUID productId) {
         Product product = getProductByOwnerIdAndProduct(userId, productId);
-        if(Objects.isNull(product)) {
-            throw new NotFoundException(PRODUCT_NOT_FOUND);
-        }
+
 
         product.setActive(Boolean.FALSE);
         repository.save(product);
@@ -94,10 +90,7 @@ public class ProductService {
     }
 
     public ProductDTO getProductById(UUID productId) {
-        Product product = repository.findById(productId);
-        if(Objects.isNull(product)) {
-            throw new NotFoundException(PRODUCT_NOT_FOUND);
-        }
+        Product product = repository.findById(productId).orElseThrow(() -> new NotFoundException("product.notfound"));
         return buildeProductDTO(product);
     }
 
@@ -114,12 +107,7 @@ public class ProductService {
         if(Objects.isNull(request.getQuantity())) {
             throw new UnProcessableEntityException("required.quantity");
         }
-
         Product product = getProductByOwnerIdAndProduct(userId, productId);
-
-        if(Objects.isNull(product)) {
-            throw new NotFoundException("product.notfound");
-        }
 
         setStockProduct(request, product);
         repository.save(product);

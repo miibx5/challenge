@@ -10,6 +10,7 @@ Codification.................: UTF-8
 */
 package br.com.edersystems.challenge.model.service.user;
 
+import br.com.edersystems.challenge.exceptions.NotFoundException;
 import br.com.edersystems.challenge.exceptions.UnProcessableEntityException;
 import br.com.edersystems.challenge.model.dto.user.UserAccountDTO;
 import br.com.edersystems.challenge.model.entities.UserAccount;
@@ -46,7 +47,7 @@ public class UserAccountService {
     }
 
     public UserAccount getUserById(UUID userId) {
-        return repository.findById(userId);
+        return repository.findById(userId).orElseThrow(() -> new NotFoundException("user.notfound"));
     }
 
     public List<UserAccountDTO> getUsers(String name) {

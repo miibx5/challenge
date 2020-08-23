@@ -74,7 +74,7 @@ public class ProductRepositoryTest {
     @Test
     public void getProductByIdSuccessfully() throws Exception {
         Product product = repository.save(new Product("0001", "Product Zero", BigDecimal.valueOf(10), new Stock(1), mary));
-        Product productRetrivied = repository.findById(product.getId());
+        Product productRetrivied = repository.findById(product.getId()).get();
         assertNotNull(productRetrivied);
     }
 
@@ -132,7 +132,7 @@ public class ProductRepositoryTest {
     @Test
     public void getProductByIduccessfully() throws Exception {
         Product product = repository.save(new Product("0001", "Product Zero", BigDecimal.valueOf(10), new Stock(1), mary));
-        Product productRetrivied = repository.findById(product.getId());
+        Product productRetrivied = repository.findById(product.getId()).get();
         assertNotNull(productRetrivied);
         assertEquals(product.getPrice(), productRetrivied.getPrice());
     }
@@ -147,7 +147,7 @@ public class ProductRepositoryTest {
 
     private ProductSpeficationBuilder getProductSpeficationBuilder(UUID ownerId, String name, String code) {
         ProductSpeficationBuilder builder = new ProductSpeficationBuilder();
-        UserAccount owner = accountRepository.findById(ownerId);
+        UserAccount owner = accountRepository.findById(ownerId).get();
         builder.getParams().add(new SearchCriteria("owner", SearchOperation.EQUALITY, owner));
         if(Objects.nonNull(name) && !name.isBlank()) {
             builder.getParams().add(new SearchCriteria("name", SearchOperation.CONTAINS, name));

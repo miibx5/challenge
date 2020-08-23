@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,8 +54,8 @@ public class UserAccountRepositoryTest {
     @Test
     public void getUserByIdSuccessfully() throws Exception {
         UserAccount account = repository.save(new UserAccount("email1@test.com", "Mary Test", "123456"));
-        UserAccount retriviedUser = repository.findById(account.getId());
-        assertNotNull(retriviedUser);
-        assertNotNull(retriviedUser.getId());
+        Optional<UserAccount> retriviedUser = repository.findById(account.getId());
+        assertTrue(retriviedUser.isPresent());
+        assertNotNull(retriviedUser.get().getId());
     }
 }

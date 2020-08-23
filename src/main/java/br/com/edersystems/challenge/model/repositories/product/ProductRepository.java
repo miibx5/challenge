@@ -17,12 +17,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ProductRepository extends PagingAndSortingRepository<Product, String>, JpaSpecificationExecutor<Product> {
 
-    Product findById(UUID productId);
+    Optional<Product> findById(UUID productId);
 
     Product findProductByOwnerAndId(UserAccount owner, UUID productId);
 }

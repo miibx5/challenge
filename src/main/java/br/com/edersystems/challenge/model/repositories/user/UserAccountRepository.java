@@ -16,12 +16,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface UserAccountRepository extends PagingAndSortingRepository<UserAccount, String>, JpaSpecificationExecutor<UserAccount> {
 
-    UserAccount findById(UUID userId);
+    Optional<UserAccount> findById(UUID userId);
 
     UserAccount findByEmail(String email);
 }
